@@ -1,4 +1,4 @@
-package com.omni.ui.theme
+package com.omni.core.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
