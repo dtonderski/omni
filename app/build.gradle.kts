@@ -48,7 +48,7 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
 
     implementation(project(":core"))
-    implementation(libs.androidx.compose.animation.core)
+    implementation(project(":feature:metrics"))
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
