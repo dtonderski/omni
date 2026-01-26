@@ -16,13 +16,10 @@ import com.omni.core.ui.components.NavPill
 import com.omni.core.ui.components.OmniLogo
 import com.omni.core.ui.components.OmniScaffold
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MetricsScreen(
     onOpenGlobalSwitcher: () -> Unit
 ) {
-    var searchQuery by remember { mutableStateOf("") }
-    var isSearchActive by remember { mutableStateOf(false) }
 
     // DATA (Eventually this comes from ViewModel)
     val dummyMetrics = remember {
@@ -52,34 +49,7 @@ fun MetricsScreen(
     OmniScaffold(
         // 1. FEATURE-SPECIFIC TOP BAR
         topBar = {
-            DockedSearchBar(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .shadow(12.dp, CircleShape),
-                query = searchQuery,
-                onQueryChange = { searchQuery = it },
-                onSearch = { isSearchActive = false },
-                active = isSearchActive,
-                onActiveChange = { isSearchActive = it },
-                placeholder = { Text("Search Metrics") },
-                shape = CircleShape,
-                colors = SearchBarDefaults.colors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.98f)
-                ),
-                leadingIcon = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        OmniLogo(onClick = onOpenGlobalSwitcher)
-                        VerticalDivider(
-                            modifier = Modifier
-                                .height(24.dp)
-                                .padding(horizontal = 8.dp)
-                        )
-                    }
-                },
-                trailingIcon = { Icon(Icons.Default.Search, null, Modifier.padding(end = 8.dp)) }
-            ) {
-                Text("Results...", Modifier.padding(16.dp))
-            }
+            MetricsTopBar(onOpenGlobalSwitcher)
         },
 
         // 2. FEATURE-SPECIFIC BOTTOM BAR
@@ -100,8 +70,43 @@ fun MetricsScreen(
                     PremiumMetricCard(metric)
                 }
             }
-        }
-    )
+        })
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MetricsTopBar(onOpenGlobalSwitcher: () -> Unit) {
+    var searchQuery by remember { mutableStateOf("") }
+    var isSearchActive by remember { mutableStateOf(false) }
+
+    DockedSearchBar(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(12.dp, CircleShape),
+        query = searchQuery,
+        onQueryChange = { searchQuery = it },
+        onSearch = { isSearchActive = false },
+        active = isSearchActive,
+        onActiveChange = { isSearchActive = it },
+        placeholder = { Text("Search Metrics") },
+        shape = CircleShape,
+        colors = SearchBarDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
+        ),
+        shadowElevation = 12.dp,
+        leadingIcon = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                OmniLogo(onClick = onOpenGlobalSwitcher)
+                VerticalDivider(
+                    modifier = Modifier
+                        .height(24.dp)
+                        .padding(horizontal = 8.dp)
+                )
+            }
+        },
+        trailingIcon = { Icon(Icons.Default.Search, null, Modifier.padding(end = 8.dp)) }) {
+        Text("Results...", Modifier.padding(16.dp))
+    }
 }
 
 @Composable
@@ -119,13 +124,13 @@ fun MetricsBottomBar() {
         ) {
             NavPill("Explore", Icons.Default.Explore, active = true)
             NavPill("Saved", Icons.Default.Bookmark, active = false)
-            VerticalDivider(modifier = Modifier
-                .height(24.dp)
-                .padding(horizontal = 4.dp))
+            VerticalDivider(
+                modifier = Modifier
+                    .height(24.dp)
+                    .padding(horizontal = 4.dp)
+            )
             FilledIconButton(
-                onClick = { },
-                modifier = Modifier.size(48.dp),
-                shape = CircleShape
+                onClick = { }, modifier = Modifier.size(48.dp), shape = CircleShape
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add")
             }
