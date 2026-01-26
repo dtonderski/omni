@@ -1,6 +1,7 @@
 package com.omni.core.ui.components
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -45,11 +47,12 @@ fun OmniScaffold(
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
             .nestedScroll(nestedScrollConnection)
     ) {
         // CONTENT SLOT
         // We pass padding so the feature knows where the safe zones are
-        content(PaddingValues(top = 100.dp, bottom = 140.dp))
+        content(PaddingValues(top = 140.dp, bottom = 140.dp))
 
         // TOP BAR SLOT (Animated)
         Box(
