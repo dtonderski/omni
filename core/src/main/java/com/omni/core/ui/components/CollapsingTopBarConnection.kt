@@ -29,7 +29,7 @@ class CollapsingTopBarConnection(
         if (heightPx == 0f) return Offset.Zero
 
         val delta = available.y
-        val newOffset = offsetAnimatable.value + delta
+        val newOffset = offsetAnimatable.value + delta * SPEED_MULTIPLIER
 
         // Instant update while dragging
         scope.launch {
@@ -71,6 +71,7 @@ class CollapsingTopBarConnection(
     // Companion object
     companion object {
         private const val VELOCITY_THRESHOLD = 500
+        private const val SPEED_MULTIPLIER = 2f
     }
 }
 
