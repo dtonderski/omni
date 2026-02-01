@@ -16,6 +16,8 @@ data class MetricEntity(
     val unit: String?,
     val currentResolution: MetricResolution,
     val maxValueForColor: Int?,
+    val accentColor: Int?,
+    val iconKey: String?,
     val createdAt: Long
 )
 

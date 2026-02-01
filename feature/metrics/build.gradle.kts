@@ -1,8 +1,11 @@
 plugins {
     alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.kapt)
 }
+
+apply(plugin = "com.google.dagger.hilt.android")
 
 android {
     namespace = "com.omni.feature.metrics"
@@ -24,13 +27,21 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     buildFeatures {
         compose = true
     }
+}
+
+kotlin {
+    jvmToolchain(21)
+}
+
+kapt {
+    correctErrorTypes = true
 }
 
 dependencies {
@@ -46,7 +57,9 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
-    ksp(libs.androidx.room.compiler)
+    add("kapt", libs.androidx.room.compiler)
+    implementation(libs.dagger.hilt.android)
+    add("kapt", libs.dagger.hilt.compiler)
 
     implementation(project(":core"))
 

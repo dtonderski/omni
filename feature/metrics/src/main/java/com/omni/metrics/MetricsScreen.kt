@@ -22,41 +22,19 @@ import androidx.compose.ui.unit.dp
 import com.omni.core.ui.components.NavPill
 import com.omni.core.ui.components.OmniLogo
 import com.omni.core.ui.components.OmniScaffold
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 @Composable
 fun MetricsScreen(
-    onOpenGlobalSwitcher: () -> Unit
+    onOpenGlobalSwitcher: () -> Unit,
+    metrics: StateFlow<List<MetricCardData>>
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var selectedFeature by remember { mutableStateOf(Feature.Metrics) }
     var selectedTab by remember { mutableStateOf(MetricsTab.Metrics) }
-
-    // DATA (Eventually this comes from ViewModel)
-    val dummyMetrics = remember {
-        listOf(
-            MetricData("Workouts", "14", "Sessions this month", Icons.Default.DirectionsRun),
-            MetricData("Protein", "145g", "Avg daily intake", Icons.Default.Restaurant),
-            MetricData("Family", "3", "Visits this year", Icons.Default.People),
-            MetricData("Mood", "Great", "Current vibe", Icons.Default.SentimentSatisfiedAlt),
-            MetricData("Sleep", "7.5h", "Avg duration", Icons.Default.NightsStay),
-            MetricData("Water", "2.1L", "Daily average", Icons.Default.LocalDrink),
-            MetricData("Steps", "12k", "Daily target", Icons.Default.DirectionsWalk),
-            MetricData("Focus", "4h", "Deep work avg", Icons.Default.Timer),
-            MetricData("Focus", "4h", "Deep work avg", Icons.Default.Timer),
-            MetricData("Focus", "4h", "Deep work avg", Icons.Default.Timer),
-            MetricData("Focus", "4h", "Deep work avg", Icons.Default.Timer),
-            MetricData("Focus", "4h", "Deep work avg", Icons.Default.Timer),
-            MetricData("Focus", "4h", "Deep work avg", Icons.Default.Timer),
-            MetricData("Focus", "4h", "Deep work avg", Icons.Default.Timer),
-            MetricData("Focus", "4h", "Deep work avg", Icons.Default.Timer),
-            MetricData("Focus", "4h", "Deep work avg", Icons.Default.Timer),
-            MetricData("Focus", "4h", "Deep work avg", Icons.Default.Timer),
-
-            MetricData("Reading", "12", "Pages today", Icons.Default.MenuBook)
-        )
-    }
+    val metricCards by metrics.collectAsState()
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -134,7 +112,7 @@ fun MetricsScreen(
                         ) { tab ->
                             when (tab) {
                                 MetricsTab.Metrics -> MetricsContent(
-                                    dummyMetrics = dummyMetrics,
+                                    dummyMetrics = metricCards,
                                     paddingValues = paddingValues
                                 )
 
@@ -242,7 +220,7 @@ fun MetricsBottomBar(
 
 @Composable
 private fun MetricsContent(
-    dummyMetrics: List<MetricData>,
+    dummyMetrics: List<MetricCardData>,
     paddingValues: PaddingValues
 ) {
     LazyColumn(
