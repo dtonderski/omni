@@ -35,7 +35,7 @@
 
 ## Configuration Notes
 - Local SDK settings belong in `local.properties`; avoid committing machine-specific paths.
-- This project targets Android SDK 36 and Java 17; keep module configs aligned.
+- This project targets Android SDK 36 and Java 21; keep module configs aligned.
 
 ## Maintenance
 - Update this guide when module structure, build/test commands, or conventions change.
