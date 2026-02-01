@@ -18,18 +18,42 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun NavPill(label: String, icon: ImageVector, active: Boolean) {
+fun NavPill(
+    label: String,
+    icon: ImageVector,
+    active: Boolean,
+    onClick: (() -> Unit)? = null
+) {
     val container = if (active) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
     val content =
         if (active) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
-    Surface(shape = CircleShape, color = container, modifier = Modifier.height(48.dp)) {
-        Row(
-            modifier = Modifier.padding(horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+    val heightModifier = Modifier.height(48.dp)
+    if (onClick != null) {
+        Surface(
+            onClick = onClick,
+            shape = CircleShape,
+            color = container,
+            modifier = heightModifier
         ) {
-            Icon(icon, null, modifier = Modifier.size(20.dp), tint = content)
-            Text(label, style = MaterialTheme.typography.labelLarge, color = content)
+            Row(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(icon, null, modifier = Modifier.size(20.dp), tint = content)
+                Text(label, style = MaterialTheme.typography.labelLarge, color = content)
+            }
+        }
+    } else {
+        Surface(shape = CircleShape, color = container, modifier = heightModifier) {
+            Row(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(icon, null, modifier = Modifier.size(20.dp), tint = content)
+                Text(label, style = MaterialTheme.typography.labelLarge, color = content)
+            }
         }
     }
 }

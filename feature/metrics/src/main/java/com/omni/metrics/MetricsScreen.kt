@@ -1,5 +1,11 @@
 package com.omni.metrics
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -16,11 +22,16 @@ import androidx.compose.ui.unit.dp
 import com.omni.core.ui.components.NavPill
 import com.omni.core.ui.components.OmniLogo
 import com.omni.core.ui.components.OmniScaffold
+import kotlinx.coroutines.launch
 
 @Composable
 fun MetricsScreen(
     onOpenGlobalSwitcher: () -> Unit
 ) {
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+    var selectedFeature by remember { mutableStateOf(Feature.Metrics) }
+    var selectedTab by remember { mutableStateOf(MetricsTab.Metrics) }
 
     // DATA (Eventually this comes from ViewModel)
     val dummyMetrics = remember {
@@ -47,31 +58,96 @@ fun MetricsScreen(
         )
     }
 
-    OmniScaffold(
-        // 1. FEATURE-SPECIFIC TOP BAR
-        topBar = {
-            MetricsTopBar(onOpenGlobalSwitcher)
-        },
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        gesturesEnabled = drawerState.isOpen,
+        drawerContent = {
+            ModalDrawerSheet {
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = "Features",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                )
+                NavigationDrawerItem(
+                    label = { Text("Metrics") },
+                    selected = selectedFeature == Feature.Metrics,
+                    onClick = {
+                        selectedFeature = Feature.Metrics
+                        scope.launch {
+                            drawerState.close()
+                        }
+                    },
+                    icon = { Icon(Icons.Default.List, contentDescription = null) },
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
+                NavigationDrawerItem(
+                    label = { Text("Workouts") },
+                    selected = selectedFeature == Feature.Workouts,
+                    onClick = {
+                        selectedFeature = Feature.Workouts
+                        scope.launch {
+                            drawerState.close()
+                        }
+                    },
+                    icon = { Icon(Icons.Default.FitnessCenter, contentDescription = null) },
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
+            }
+        }
+    ) {
+        OmniScaffold(
+            // 1. FEATURE-SPECIFIC TOP BAR
+            topBar = {
+                MetricsTopBar {
+                    scope.launch {
+                        drawerState.open()
+                    }
+                    onOpenGlobalSwitcher()
+                }
+            },
 
-        // 2. FEATURE-SPECIFIC BOTTOM BAR
-        bottomBar = {
-            MetricsBottomBar()
-        },
+            // 2. FEATURE-SPECIFIC BOTTOM BAR
+            bottomBar = {
+                if (selectedFeature == Feature.Metrics) {
+                    MetricsBottomBar(
+                        selectedTab = selectedTab,
+                        onSelectTab = { selectedTab = it }
+                    )
+                } else {
+                    Spacer(modifier = Modifier.height(0.dp))
+                }
+            },
 
-        // 3. CONTENT
-        content = { paddingValues ->
-            LazyColumn(
-                contentPadding = paddingValues, // Uses the safe-zones from Scaffold
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp)
-            ) {
-                items(dummyMetrics) { metric ->
-                    PremiumMetricCard(metric)
+            // 3. CONTENT
+            content = { paddingValues ->
+                when (selectedFeature) {
+                    Feature.Metrics -> {
+                        AnimatedContent(
+                            targetState = selectedTab,
+                            transitionSpec = {
+                                val direction = if (targetState.ordinal > initialState.ordinal) 1 else -1
+                                slideInHorizontally { fullWidth -> direction * fullWidth } + fadeIn() togetherWith
+                                    slideOutHorizontally { fullWidth -> -direction * fullWidth } + fadeOut()
+                            },
+                            label = "MetricsTabContent"
+                        ) { tab ->
+                            when (tab) {
+                                MetricsTab.Metrics -> MetricsContent(
+                                    dummyMetrics = dummyMetrics,
+                                    paddingValues = paddingValues
+                                )
+
+                                MetricsTab.Objectives -> ObjectivesContent(paddingValues)
+                            }
+                        }
+                    }
+
+                    Feature.Workouts -> WorkoutsContent(paddingValues)
                 }
             }
-        })
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -111,7 +187,10 @@ fun MetricsTopBar(onOpenGlobalSwitcher: () -> Unit) {
 }
 
 @Composable
-fun MetricsBottomBar() {
+fun MetricsBottomBar(
+    selectedTab: MetricsTab,
+    onSelectTab: (MetricsTab) -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -130,8 +209,18 @@ fun MetricsBottomBar() {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                NavPill("Metrics", Icons.Default.List, active = true)
-                NavPill("Objectives", Icons.Default.Flag, active = false)
+                NavPill(
+                    "Metrics",
+                    Icons.Default.List,
+                    active = selectedTab == MetricsTab.Metrics,
+                    onClick = { onSelectTab(MetricsTab.Metrics) }
+                )
+                NavPill(
+                    "Objectives",
+                    Icons.Default.Flag,
+                    active = selectedTab == MetricsTab.Objectives,
+                    onClick = { onSelectTab(MetricsTab.Objectives) }
+                )
             }
         }
 
@@ -149,4 +238,64 @@ fun MetricsBottomBar() {
             )
         }
     }
+}
+
+@Composable
+private fun MetricsContent(
+    dummyMetrics: List<MetricData>,
+    paddingValues: PaddingValues
+) {
+    LazyColumn(
+        contentPadding = paddingValues,
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp)
+    ) {
+        items(dummyMetrics) { metric ->
+            PremiumMetricCard(metric)
+        }
+    }
+}
+
+@Composable
+private fun ObjectivesContent(paddingValues: PaddingValues) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "Objectives coming soon",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+private fun WorkoutsContent(paddingValues: PaddingValues) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "Workouts coming soon",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+enum class Feature {
+    Metrics,
+    Workouts
+}
+
+enum class MetricsTab {
+    Metrics,
+    Objectives
 }
