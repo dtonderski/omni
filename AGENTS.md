@@ -4,6 +4,7 @@
 - `app/` is the launcher module (MainActivity, app manifest, and app-level resources).
 - `core/` holds shared UI, theming, and navigation primitives used across features.
 - `feature/metrics/` is the first vertical slice feature module (metrics UI and models).
+- `feature/*/README.md` documents feature-specific context and expectations.
 - Source sets follow standard Android layout: `src/main`, `src/test` (unit), and `src/androidTest` (instrumented).
 
 ## Build, Test, and Development Commands
