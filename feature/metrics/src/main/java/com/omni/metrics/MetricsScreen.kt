@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -111,29 +112,41 @@ fun MetricsTopBar(onOpenGlobalSwitcher: () -> Unit) {
 
 @Composable
 fun MetricsBottomBar() {
-    Surface(
-        shape = CircleShape,
-        color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.96f),
-        shadowElevation = 12.dp,
-        modifier = Modifier.height(64.dp)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
     ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        Surface(
+            shape = RoundedCornerShape(28.dp),
+            color = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.98f),
+            shadowElevation = 10.dp,
+            modifier = Modifier.height(58.dp)
         ) {
-            NavPill("Explore", Icons.Default.Explore, active = true)
-            NavPill("Saved", Icons.Default.Bookmark, active = false)
-            VerticalDivider(
-                modifier = Modifier
-                    .height(24.dp)
-                    .padding(horizontal = 4.dp)
-            )
-            FilledIconButton(
-                onClick = { }, modifier = Modifier.size(48.dp), shape = CircleShape
+            Row(
+                modifier = Modifier.padding(horizontal = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add")
+                NavPill("Metrics", Icons.Default.List, active = true)
+                NavPill("Objectives", Icons.Default.Flag, active = false)
             }
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        FilledIconButton(
+            onClick = { },
+            modifier = Modifier.size(64.dp),
+            shape = RoundedCornerShape(20.dp)
+        ) {
+            Icon(
+                Icons.Default.Add,
+                contentDescription = "Add",
+                modifier = Modifier.size(32.dp)
+            )
         }
     }
 }
