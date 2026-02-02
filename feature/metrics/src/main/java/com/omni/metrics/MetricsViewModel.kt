@@ -96,35 +96,34 @@ class MetricsViewModel @Inject constructor(
 }
 
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-private fun MetricEntity.toCardDataFlow(entryDao: EntryDao, objectiveDao: ObjectiveDao, milestoneDao: MilestoneDao) =
-    when (kind) {
-        MetricKind.STATE -> combine(
-            entryDao.observeLatest(id),
-            objectiveDao.observeByMetric(id)
-        ) { entry, objectives ->
-            Pair(entry, objectives)
-        }.flatMapLatest { (entry, objectives) ->
-            objectiveSummaryFlow(objectives, milestoneDao).map { summary ->
-                toStateCard(entry, summary)
-            }
+private fun MetricEntity.toCardDataFlow(
+    entryDao: EntryDao,
+    objectiveDao: ObjectiveDao,
+    milestoneDao: MilestoneDao
+) = objectiveDao.observeByMetric(id)
+    .flatMapLatest { objectives ->
+        val objective = objectives.firstOrNull()
+        val range = if (objective != null) {
+            DateRange(objective.evaluationStart, objective.evaluationEnd)
+        } else {
+            displayResolution.lastCompletedRange(LocalDate.now())
         }
-        MetricKind.EVENT -> {
-            val range = displayResolution.lastCompletedRange(LocalDate.now())
-            combine(
-                entryDao.observeEntriesForRange(id, range.start, range.end),
-                objectiveDao.observeByMetric(id)
-            ) { entries, objectives ->
-                Pair(entries, objectives)
-            }.flatMapLatest { (entries, objectives) ->
-                objectiveSummaryFlow(objectives, milestoneDao).map { summary ->
-                    toEventCard(entries, summary)
-                }
-            }
+        val entriesFlow = entryDao.observeEntriesForRange(id, range.start, range.end)
+        val summaryFlow = objectiveSummaryFlow(objectives, milestoneDao)
+        combine(entriesFlow, summaryFlow) { entries, summary ->
+            toCard(entries, summary)
         }
     }
 
-private fun MetricEntity.toStateCard(entry: EntryEntity?, objective: ObjectiveSummary?): MetricCardData {
-    val objectiveUi = objective?.toUi(entry.toNumericValue(type))
+private fun MetricEntity.toCard(
+    entries: List<EntryEntity>,
+    objective: ObjectiveSummary?
+): MetricCardData {
+    val objectiveAggregation = objective?.aggregationType?.toDisplayAggregationType()
+    val objectiveValue = objectiveAggregation?.let { entries.toNumericValue(type, it) }
+    val objectiveUi = objective?.toUi(objectiveValue)
+    val useObjective = objectiveUi != null
+    val aggregationForValue = objectiveAggregation ?: displayAggregation
     val useGradient = objectiveUi?.hasTier == true
     val (accentStart, accentEnd) = if (useGradient) {
         (objectiveUi.tierGradientStart ?: NO_TIER_COLOR) to (objectiveUi.tierGradientEnd ?: NO_TIER_COLOR)
@@ -132,58 +131,35 @@ private fun MetricEntity.toStateCard(entry: EntryEntity?, objective: ObjectiveSu
         val base = metricTypeColor(type)
         base to base
     }
-    val value = entry.toDisplayValue(type)
-    return MetricCardData(
-        name = name,
-        value = value,
-        unit = unit,
-        displayPeriodLabel = "Latest",
-        displayAggregationLabel = "Latest",
-        logResolutionLabel = "Logs ${currentResolution.toDisplayLabel().lowercase()}",
-        tierLabel = objectiveUi?.tierLabel,
-        tierGradientStart = objectiveUi?.tierGradientStart,
-        tierGradientEnd = objectiveUi?.tierGradientEnd,
-        nextTierLabel = objectiveUi?.nextTierLabel,
-        nextMilestoneLabel = objectiveUi?.nextMilestoneLabel,
-        progress = objectiveUi?.progress,
-        progressSegments = objectiveUi?.progressSegments,
-        segmentWeights = objectiveUi?.segmentWeights,
-        objectivePeriodLabel = objectiveUi?.objectivePeriodLabel,
-        objectiveAggregationLabel = objectiveUi?.objectiveAggregationLabel,
-        useGradient = useGradient,
-        accentStart = accentStart,
-        accentEnd = accentEnd,
-        icon = iconKey.toIcon()
-    )
-}
-
-private fun MetricEntity.toEventCard(entries: List<EntryEntity>, objective: ObjectiveSummary?): MetricCardData {
-    val objectiveUi = objective?.toUi(entries.toNumericValue(type, displayAggregation))
-    val useGradient = objectiveUi?.hasTier == true
-    val (accentStart, accentEnd) = if (useGradient) {
-        (objectiveUi.tierGradientStart ?: NO_TIER_COLOR) to (objectiveUi.tierGradientEnd ?: NO_TIER_COLOR)
+    val value = entries.toDisplayValue(type, aggregationForValue)
+    val periodLabel = if (useObjective) {
+        objectiveUi.objectivePeriodLabel
     } else {
-        val base = metricTypeColor(type)
-        base to base
+        displayResolution.toHeadlinePeriodLabel()
     }
-    val value = entries.toDisplayValue(type, displayAggregation)
+    val aggregationLabel = if (useObjective) {
+        objectiveUi.objectiveAggregationLabel
+    } else {
+        displayAggregation.toDisplayLabel()
+    }
     return MetricCardData(
         name = name,
         value = value,
         unit = unit,
-        displayPeriodLabel = displayResolution.toHeadlinePeriodLabel(),
-        displayAggregationLabel = displayAggregation.toDisplayLabel(),
+        displayPeriodLabel = periodLabel,
+        displayAggregationLabel = aggregationLabel,
         logResolutionLabel = "Logs ${currentResolution.toDisplayLabel().lowercase()}",
         tierLabel = objectiveUi?.tierLabel,
         tierGradientStart = objectiveUi?.tierGradientStart,
         tierGradientEnd = objectiveUi?.tierGradientEnd,
         nextTierLabel = objectiveUi?.nextTierLabel,
+        nextTierValue = objectiveUi?.nextTierValue,
         nextMilestoneLabel = objectiveUi?.nextMilestoneLabel,
         progress = objectiveUi?.progress,
         progressSegments = objectiveUi?.progressSegments,
         segmentWeights = objectiveUi?.segmentWeights,
-        objectivePeriodLabel = objectiveUi?.objectivePeriodLabel,
-        objectiveAggregationLabel = objectiveUi?.objectiveAggregationLabel,
+        objectivePeriodLabel = if (useObjective) null else objectiveUi?.objectivePeriodLabel,
+        objectiveAggregationLabel = if (useObjective) null else objectiveUi?.objectiveAggregationLabel,
         useGradient = useGradient,
         accentStart = accentStart,
         accentEnd = accentEnd,
@@ -215,6 +191,12 @@ private fun ObjectiveAggregationType.toDisplayLabel(): String = when (this) {
     ObjectiveAggregationType.TOTAL -> "Total"
     ObjectiveAggregationType.AVERAGE -> "Average"
     ObjectiveAggregationType.LATEST -> "Latest"
+}
+
+private fun ObjectiveAggregationType.toDisplayAggregationType(): DisplayAggregationType = when (this) {
+    ObjectiveAggregationType.TOTAL -> DisplayAggregationType.TOTAL
+    ObjectiveAggregationType.AVERAGE -> DisplayAggregationType.AVERAGE
+    ObjectiveAggregationType.LATEST -> DisplayAggregationType.LATEST
 }
 
 private fun LocalDate.toObjectivePeriodLabel(end: LocalDate): String {
@@ -367,6 +349,7 @@ private data class ObjectiveUi(
     val tierLabel: String,
     val nextMilestoneLabel: String,
     val nextTierLabel: String?,
+    val nextTierValue: String?,
     val nextTierColor: Color?,
     val progress: Float,
     val progressSegments: List<Float>,
@@ -418,7 +401,7 @@ private fun ObjectiveSummary.toUi(currentValue: Double?): ObjectiveUi? {
     val achieved = sorted.lastOrNull { currentValue >= it.thresholdValue }
     val next = sorted.firstOrNull { currentValue < it.thresholdValue }
     val tierLabel = achieved?.name ?: "No tier"
-    val nextLabel = next?.name?.let { "Next: $it" } ?: "Top tier"
+    val nextLabel = next?.name?.let { "Next: $it (${next.thresholdValue})" } ?: "Top tier"
     val tierGradient = achieved?.name?.let { medalGradient(it) }
     val tierGradientStart = tierGradient?.first ?: NO_TIER_COLOR
     val tierGradientEnd = tierGradient?.second ?: NO_TIER_COLOR
@@ -427,6 +410,7 @@ private fun ObjectiveSummary.toUi(currentValue: Double?): ObjectiveUi? {
         tierLabel = tierLabel,
         nextMilestoneLabel = nextLabel,
         nextTierLabel = next?.name,
+        nextTierValue = next?.thresholdValue?.toString(),
         nextTierColor = nextTierColor,
         progress = progress,
         progressSegments = segmentFills,

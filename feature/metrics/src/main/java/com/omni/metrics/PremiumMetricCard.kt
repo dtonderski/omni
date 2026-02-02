@@ -190,6 +190,13 @@ fun PremiumMetricCard(data: MetricCardData) {
                                         withStyle(SpanStyle(color = nextTierColor)) {
                                             append(data.nextTierLabel)
                                         }
+                                        if (!data.nextTierValue.isNullOrBlank()) {
+                                            if (!data.unit.isNullOrBlank()) {
+                                                append(" (${data.nextTierValue} ${data.unit})")
+                                            } else {
+                                                append(" (${data.nextTierValue})")
+                                            }
+                                        }
                                     },
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant

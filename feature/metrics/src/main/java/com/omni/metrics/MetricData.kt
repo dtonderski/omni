@@ -14,6 +14,7 @@ data class MetricCardData(
     val tierGradientStart: Color?,
     val tierGradientEnd: Color?,
     val nextTierLabel: String?,
+    val nextTierValue: String?,
     val nextMilestoneLabel: String?,
     val progress: Float?,
     val progressSegments: List<Float>?,
