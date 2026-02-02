@@ -47,7 +47,7 @@ fun OmniScaffold(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(MaterialTheme.colorScheme.surface)
             .nestedScroll(nestedScrollConnection)
     ) {
         // CONTENT SLOT

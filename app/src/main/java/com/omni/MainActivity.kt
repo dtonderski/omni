@@ -25,7 +25,8 @@ class MainActivity : ComponentActivity() {
                     metricsEntry = { onOpenGlobalSwitcher ->
                         MetricsEntry(
                             onOpenGlobalSwitcher = onOpenGlobalSwitcher,
-                            metrics = viewModel.metrics
+                            metrics = viewModel.metrics,
+                            onAddMetric = viewModel::addMetric
                         )
                     },
                     workoutsEntry = { onOpenGlobalSwitcher ->

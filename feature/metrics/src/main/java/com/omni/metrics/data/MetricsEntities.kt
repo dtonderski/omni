@@ -12,9 +12,12 @@ import java.time.LocalDate
 data class MetricEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val name: String,
+    val kind: MetricKind,
     val type: MetricType,
     val unit: String?,
     val currentResolution: MetricResolution,
+    val displayResolution: MetricResolution,
+    val displayAggregation: DisplayAggregationType,
     val maxValueForColor: Int?,
     val accentColor: Int?,
     val iconKey: String?,
@@ -98,11 +101,22 @@ enum class MetricType {
     INT
 }
 
+enum class MetricKind {
+    STATE,
+    EVENT
+}
+
 enum class MetricResolution {
     DAILY,
     WEEKLY,
     MONTHLY,
     YEARLY
+}
+
+enum class DisplayAggregationType {
+    TOTAL,
+    AVERAGE,
+    LATEST
 }
 
 enum class ObjectiveAggregationType {

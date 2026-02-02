@@ -17,11 +17,24 @@ class MetricsConverters {
     fun stringToMetricType(value: String?): MetricType? = value?.let(MetricType::valueOf)
 
     @TypeConverter
+    fun metricKindToString(value: MetricKind?): String? = value?.name
+
+    @TypeConverter
+    fun stringToMetricKind(value: String?): MetricKind? = value?.let(MetricKind::valueOf)
+
+    @TypeConverter
     fun metricResolutionToString(value: MetricResolution?): String? = value?.name
 
     @TypeConverter
     fun stringToMetricResolution(value: String?): MetricResolution? =
         value?.let(MetricResolution::valueOf)
+
+    @TypeConverter
+    fun displayAggregationToString(value: DisplayAggregationType?): String? = value?.name
+
+    @TypeConverter
+    fun stringToDisplayAggregation(value: String?): DisplayAggregationType? =
+        value?.let(DisplayAggregationType::valueOf)
 
     @TypeConverter
     fun aggregationTypeToString(value: ObjectiveAggregationType?): String? = value?.name

@@ -11,7 +11,7 @@ import androidx.room.TypeConverters
         ObjectiveEntity::class,
         MilestoneEntity::class
     ],
-    version = 1,
+    version = 3,
     exportSchema = true
 )
 @TypeConverters(MetricsConverters::class)

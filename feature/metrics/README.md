@@ -7,7 +7,7 @@ It is designed around a simple tiered system where Objectives define a timeframe
 - Metric: the thing being tracked (name, type, unit, current resolution).
 - Entry: a recorded value for a specific time bucket (periodStart/periodEnd).
 - Objective: a goal for a metric within an evaluation window.
-- Milestone: tier thresholds within an Objective (Platinum/Gold/Silver/Bronze).
+- Milestone: tier thresholds within an Objective (Diamond/Gold/Silver/Bronze).
 
 ## Notes
 - Boolean vs. Int entries: store either `valueBool` or `valueInt`, never both.

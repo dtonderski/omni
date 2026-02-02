@@ -35,6 +35,14 @@ interface EntryDao {
     @Query(
         "SELECT * FROM entries " +
             "WHERE metricId = :metricId " +
+            "ORDER BY periodEnd DESC " +
+            "LIMIT 1"
+    )
+    fun observeLatest(metricId: Long): Flow<EntryEntity?>
+
+    @Query(
+        "SELECT * FROM entries " +
+            "WHERE metricId = :metricId " +
             "AND periodStart >= :from " +
             "AND periodEnd <= :to " +
             "ORDER BY periodStart ASC"
