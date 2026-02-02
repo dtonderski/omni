@@ -23,3 +23,4 @@ rootProject.name = "Omni"
 include(":app")
 include(":core")
 include(":feature:metrics")
+include(":feature:workouts")

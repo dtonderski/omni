@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.sp
 fun PremiumMetricCard(data: MetricCardData) {
     Surface(
         shape = RoundedCornerShape(28.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerHighest,
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
         tonalElevation = 2.dp,
         modifier = Modifier.fillMaxWidth()
     ) {

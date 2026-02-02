@@ -1,22 +1,16 @@
-import com.android.build.api.dsl.ApplicationExtension
+import com.android.build.api.dsl.LibraryExtension
 
 plugins {
-    alias(libs.plugins.android.application)
+    alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.ksp)
-    alias(libs.plugins.hilt.android)
 }
 
-extensions.configure<ApplicationExtension> {
-    namespace = "com.omni"
+extensions.configure<LibraryExtension> {
+    namespace = "com.omni.feature.workouts"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.omni"
         minSdk = 36
-        targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -34,6 +28,7 @@ extensions.configure<ApplicationExtension> {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
+
     buildFeatures {
         compose = true
     }
@@ -54,12 +49,8 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.material.icons.extended)
-    implementation(libs.dagger.hilt.android)
-    ksp(libs.dagger.hilt.compiler)
 
     implementation(project(":core"))
-    implementation(project(":feature:metrics"))
-    implementation(project(":feature:workouts"))
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
