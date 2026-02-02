@@ -1,13 +1,13 @@
+import com.android.build.api.dsl.LibraryExtension
+
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt.android)
 }
 
-apply(plugin = "com.google.dagger.hilt.android")
-
-android {
+extensions.configure<LibraryExtension> {
     namespace = "com.omni.feature.metrics"
     compileSdk = 36
 
@@ -40,10 +40,6 @@ kotlin {
     jvmToolchain(21)
 }
 
-kapt {
-    correctErrorTypes = true
-}
-
 dependencies {
 
     implementation(libs.androidx.core.ktx)
@@ -57,9 +53,9 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
-    add("kapt", libs.androidx.room.compiler)
+    ksp(libs.androidx.room.compiler)
     implementation(libs.dagger.hilt.android)
-    add("kapt", libs.dagger.hilt.compiler)
+    ksp(libs.dagger.hilt.compiler)
 
     implementation(project(":core"))
 
