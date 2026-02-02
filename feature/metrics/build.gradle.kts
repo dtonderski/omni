@@ -41,6 +41,10 @@ kotlin {
     jvmToolchain(21)
 }
 
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
+
 dependencies {
 
     implementation(libs.androidx.core.ktx)

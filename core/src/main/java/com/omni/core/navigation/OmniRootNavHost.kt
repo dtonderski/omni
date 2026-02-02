@@ -16,7 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FitnessCenter
-import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
@@ -67,7 +67,7 @@ fun OmniRootNavHost(
                         }
                         scope.launch { drawerState.close() }
                     },
-                    icon = { Icon(Icons.Default.List, contentDescription = null) },
+                    icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = null) },
                     modifier = Modifier.padding(horizontal = 8.dp)
                 )
                 NavigationDrawerItem(

@@ -2,7 +2,14 @@ package com.omni.metrics
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.automirrored.filled.DirectionsRun
+import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.filled.MonitorWeight
+import androidx.compose.material.icons.filled.NightsStay
+import androidx.compose.material.icons.filled.People
+import androidx.compose.material.icons.filled.Restaurant
+import androidx.compose.material.icons.filled.Savings
+import androidx.compose.material.icons.filled.TrackChanges
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.omni.metrics.data.MetricDao
@@ -57,7 +64,7 @@ private fun MetricResolution.toPeriodLabel(): String = when (this) {
 }
 
 private fun String?.toIcon() = when (this) {
-    "directions_run" -> Icons.Default.DirectionsRun
+    "directions_run" -> Icons.AutoMirrored.Filled.DirectionsRun
     "restaurant" -> Icons.Default.Restaurant
     "nights_stay" -> Icons.Default.NightsStay
     "code" -> Icons.Default.Code

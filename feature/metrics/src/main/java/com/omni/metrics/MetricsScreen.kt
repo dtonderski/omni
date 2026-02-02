@@ -6,7 +6,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Flag
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
@@ -85,28 +88,35 @@ fun MetricsTopBar(onOpenGlobalSwitcher: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .shadow(12.dp, CircleShape),
-        query = searchQuery,
-        onQueryChange = { searchQuery = it },
-        onSearch = { isSearchActive = false },
-        active = isSearchActive,
-        onActiveChange = { isSearchActive = it },
-        placeholder = { Text("Search Metrics") },
+        inputField = {
+            SearchBarDefaults.InputField(
+                query = searchQuery,
+                onQueryChange = { searchQuery = it },
+                onSearch = { isSearchActive = false },
+                expanded = isSearchActive,
+                onExpandedChange = { isSearchActive = it },
+                placeholder = { Text("Search Metrics") },
+                leadingIcon = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        OmniLogo(onClick = onOpenGlobalSwitcher)
+                        VerticalDivider(
+                            modifier = Modifier
+                                .height(24.dp)
+                                .padding(horizontal = 8.dp)
+                        )
+                    }
+                },
+                trailingIcon = { Icon(Icons.Default.Search, null, Modifier.padding(end = 8.dp)) }
+            )
+        },
+        expanded = isSearchActive,
+        onExpandedChange = { isSearchActive = it },
         shape = CircleShape,
         colors = SearchBarDefaults.colors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
         ),
-        shadowElevation = 12.dp,
-        leadingIcon = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                OmniLogo(onClick = onOpenGlobalSwitcher)
-                VerticalDivider(
-                    modifier = Modifier
-                        .height(24.dp)
-                        .padding(horizontal = 8.dp)
-                )
-            }
-        },
-        trailingIcon = { Icon(Icons.Default.Search, null, Modifier.padding(end = 8.dp)) }) {
+        shadowElevation = 12.dp
+    ) {
         Text("Results...", Modifier.padding(16.dp))
     }
 }
@@ -136,7 +146,7 @@ fun MetricsBottomBar(
             ) {
                 NavPill(
                     "Metrics",
-                    Icons.Default.List,
+                    Icons.AutoMirrored.Filled.List,
                     active = selectedDestination == MetricsTab.Metrics,
                     onClick = { onSelectDestination(MetricsTab.Metrics) }
                 )
